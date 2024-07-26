@@ -48,7 +48,7 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 			name: "Exceeding Maximum Limit Error",
 			req: &folders.PaginatedFetchReq{
 				OrgID: orgID,
-				Limit: 150,
+				Limit: 200,
 			},
 			wantErr: true,
 		},
@@ -56,7 +56,7 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 			name: "Nil OrgID Error",
 			req: &folders.PaginatedFetchReq{
 				OrgID:  uuid.Nil,
-				Limit:  5,
+				Limit:  10,
 				Cursor: "",
 			},
 			wantErr: true,
@@ -65,7 +65,7 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 			name: "Invalid Cursor Token Error",
 			req: &folders.PaginatedFetchReq{
 				OrgID:  orgID,
-				Limit:  5,
+				Limit:  10,
 				Cursor: "invalidToken",
 			},
 			wantErr: true,
@@ -76,7 +76,7 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 				emptyOrgID := uuid.Must(uuid.NewV4())
 				return &folders.PaginatedFetchReq{
 					OrgID: emptyOrgID,
-					Limit: 10,
+					Limit: 20,
 				}
 			},
 			check: func(t *testing.T, res *folders.PaginatedFetchRes, err error) {
@@ -86,36 +86,36 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 			},
 		},
 		{
-			name: "Fetch First 5 Folders",
+			name: "Fetch First 10 Folders",
 			req: &folders.PaginatedFetchReq{
 				OrgID:  orgID,
-				Limit:  5,
+				Limit:  10,
 				Cursor: "",
 			},
 			check: func(t *testing.T, res *folders.PaginatedFetchRes, err error) {
 				assert.NoError(t, err)
 				expected, _ := folders.FetchAllFoldersByOrgID(orgID)
-				assert.Equal(t, expected[0:5], res.Folders)
+				assert.Equal(t, expected[0:10], res.Folders)
 			},
 		},
 		{
-			name: "Fetch Next 5 Folders",
+			name: "Fetch Next 10 Folders",
 			setup: func() *folders.PaginatedFetchReq {
 				firstBatch, _ := folders.GetAllFoldersPaginated(&folders.PaginatedFetchReq{
 					OrgID:  orgID,
-					Limit:  5,
+					Limit:  10,
 					Cursor: "",
 				})
 				return &folders.PaginatedFetchReq{
 					OrgID:  orgID,
-					Limit:  5,
+					Limit:  10,
 					Cursor: firstBatch.NextCursor,
 				}
 			},
 			check: func(t *testing.T, res *folders.PaginatedFetchRes, err error) {
 				expected, _ := folders.FetchAllFoldersByOrgID(orgID)
 				assert.NoError(t, err)
-				assert.Equal(t, expected[5:10], res.Folders)
+				assert.Equal(t, expected[10:20], res.Folders)
 			},
 		},
 		{
@@ -125,7 +125,7 @@ func Test_GetAllFoldersPaginated(t *testing.T) {
 				nextCursor := folders.EncodeNextCursor(len(expected) - 3)
 				return &folders.PaginatedFetchReq{
 					OrgID:  orgID,
-					Limit:  5,
+					Limit:  10,
 					Cursor: nextCursor,
 				}
 			},

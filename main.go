@@ -8,15 +8,39 @@ import (
 )
 
 func main() {
-	req := &folders.FetchFolderRequest{
-		OrgID: uuid.FromStringOrNil(folders.DefaultOrgID),
+	// req := &folders.FetchFolderRequest{
+	// 	OrgID: uuid.FromStringOrNil(folders.DefaultOrgID),
+	// }
+
+	// res, err := folders.GetAllFolders(req)
+	// if err != nil {
+	// 	fmt.Printf("%v", err)
+	// 	return
+	// }
+
+	// folders.PrettyPrint(res)
+
+	req := &folders.PaginatedFetchReq{
+		OrgID:  uuid.FromStringOrNil(folders.DefaultOrgID),
+		Limit:  20, // specify the limit for pagination
+		Cursor: "", // empty cursor for the first page
 	}
 
-	res, err := folders.GetAllFolders(req)
-	if err != nil {
-		fmt.Printf("%v", err)
-		return
-	}
+	for {
+		res, err := folders.GetAllFoldersPaginated(req)
+		if err != nil {
+			fmt.Printf("failed to fetch folders: %v", err)
+			return
+		}
 
-	folders.PrettyPrint(res)
+		folders.PrettyPrint(res.Folders)
+
+		// if the NextCursor is empty, the last page is reached
+		if res.NextCursor == "" {
+			break
+		}
+
+		// set the cursor for the next request to fetch the next page
+		req.Cursor = res.NextCursor
+	}
 }

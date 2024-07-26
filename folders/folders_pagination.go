@@ -34,7 +34,7 @@ func GetAllFoldersPaginated(req *PaginatedFetchReq) (*PaginatedFetchRes, error) 
 
 	// Checks if the limit is valid
 	if req.Limit <= 0 {
-		req.Limit = 10 //default limit
+		req.Limit = 20 //default limit
 		return nil, errors.New("limit must be greater than 0")
 	}
 
